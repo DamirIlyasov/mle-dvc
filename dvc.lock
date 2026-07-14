@@ -1,0 +1,76 @@
+schema: '2.0'
+stages:
+  get_data:
+    cmd: python scripts/data.py
+    deps:
+    - path: scripts/data.py
+      hash: md5
+      md5: 0cb91ccf334d3a8c724bcfb33d59cc59
+      size: 1495
+    params:
+      params.yaml:
+        index_col: customer_id
+    outs:
+    - path: data/initial_data.csv
+      hash: md5
+      md5: 65ed44651d534db19d238ebf6882b3f4
+      size: 823606
+      cloud:
+        my_storage:
+          etag: 65ed44651d534db19d238ebf6882b3f4
+          version_id: 0006565801ED82C0
+  fit_model:
+    cmd: python scripts/fit.py
+    deps:
+    - path: data/initial_data.csv
+      hash: md5
+      md5: 65ed44651d534db19d238ebf6882b3f4
+      size: 823606
+    - path: scripts/fit.py
+      hash: md5
+      md5: 529ba868076275e81ca8288f29fd156e
+      size: 1924
+    params:
+      params.yaml:
+        auto_class_weights: Balanced
+        index_col: customer_id
+        one_hot_drop: if_binary
+        target_col: target
+    outs:
+    - path: models/fitted_model.pkl
+      hash: md5
+      md5: d3aa4fcf940f96b168c8682a2ee9f129
+      size: 1100287
+      cloud:
+        my_storage:
+          etag: d3aa4fcf940f96b168c8682a2ee9f129
+          version_id: 0006565801EEAA0C
+  evaluate_model:
+    cmd: python scripts/evaluate.py
+    deps:
+    - path: models/fitted_model.pkl
+      hash: md5
+      md5: d3aa4fcf940f96b168c8682a2ee9f129
+      size: 1100287
+    - path: scripts/evaluate.py
+      hash: md5
+      md5: 14a419784db999a56517061e675dd7e4
+      size: 1206
+    params:
+      params.yaml:
+        index_col: customer_id
+        metrics:
+        - f1
+        - roc_auc
+        n_jobs: -1
+        n_splits: 5
+        target_col: target
+    outs:
+    - path: cv_results/cv_res.json
+      hash: md5
+      md5: 1c0f705677935d249f7a09f88b5f99d0
+      size: 78
+      cloud:
+        my_storage:
+          etag: 1c0f705677935d249f7a09f88b5f99d0
+          version_id: 0006565801EE1F00
